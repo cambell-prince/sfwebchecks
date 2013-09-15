@@ -1,0 +1,32 @@
+<h2 style="font-weight:normal">My Publishing Projects</h2>
+<form ng-show="rights.deleteOther" class="control-bar form-inline">
+	<button class="btn" ng-click="removeProject()"><i class="icon-remove"></i>Remove Projects</button>
+	<button class="btn" ng-click="newProjectCollapsed = !newProjectCollapsed"><i class="icon-plus"></i>Create New Project</button>
+</form>
+<div class="new-item" collapse="newProjectCollapsed">
+	<form class="well form-inline">
+	<input type="text" ng-model="newProject.projectname" placeholder="Project Name"/>
+	<select ng-model="newProject.type" ng-options="value.key as value.label for value in projectTypes"></select>
+	<button type="submit" class="btn" ng-click="addProject(); newProjectCollapsed = true"><i class="icon-plus"></i>Add Project</button>
+	</form>
+</div>
+<hr />
+<div listview hide-if-empty="true" search="queryProjectsForUser()" items="projects" visible-items="visibleProjects" select="">
+	<table class="table" style="width: 100%">
+	<thead>
+	<tr>
+		<th width="16px" align="center"></th>
+		<th>Type</th>
+		<th>Project</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr ng-repeat="project in visibleProjects" class="details-row" ng-class="{active: isSelected(project)}">
+		<td width="16px" align="center"><div ng-show="rights.deleteOther"><input type="checkbox" ng-checked="isSelected(project)" ng-click="updateSelection($event, project)" /></div></td>
+		<td>{{project.type}}</td>
+		<td><a href="{{projectUrl(project)}}"><span class="larger-text">{{project.projectname}}</span></a></td>
+	</tr>
+	</tbody>
+	</table>
+</div>
+<hr />

@@ -8,6 +8,7 @@ var json_rpc = angular.module('jsonRpc', ['sf.error']);
 
 json_rpc.factory('jsonRpc', ['$http', 'error', function($http, error) {
 	this.params = {};
+	this.params.version = '2.0';
 	this.last_id = 0;
 	
 	this.next_id = function() {
@@ -15,30 +16,14 @@ json_rpc.factory('jsonRpc', ['$http', 'error', function($http, error) {
 		return this.last_id;
 	};
 	
-	this.connect = function(params) {
-		if (typeof(params) == "string") {
-			// We were called as connect("http://url/goes/here")
-			params = {"url": params};
-		}
-		if (params.url === undefined || params.url === "") {
-			throw "Valid URL required";
-		}
-		if (params.version === undefined) {
-			params.version = "2.0";
-		}
-		this.params = params;
-	};
-	
-	this.call = function(remote_func, remote_params, callback, id) {
+	this.call = function(url, remote_func, remote_params, callback, id) {
 		// remote_func should be a string
 		// remote_params should be an object (e.g., {"param_name": "value"})
 		// callback is the function that will be called on success or failure. It
 		// should take a single parameter, a result object with five attributes:
 		//   ok = boolean, true for a 2xx code and false for a 3xx, 4xx or 5xx code
 		//   data, status, headers, config = as described in Angular's $http docs
-		if (this.params.url === undefined) {
-			throw "No URL: should use connect() before using call()";
-		}
+		this.params.url = url;
 		if (id === undefined) {
 			id = this.next_id();
 		}

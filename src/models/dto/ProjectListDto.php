@@ -19,10 +19,13 @@ class ProjectListDto
 	 * @param string $userId  // NOTE: Not implemented yet! Right now *all* projects are listed regardless of ownership. TODO: Implement this. RM 2013-08
 	 * @returns array - the DTO array
 	 */
-	public static function encode() {
+	public static function listOf($type) {
 		// Eventually this will need to become:
 		//$projectList = new ProjectList_UserModel($userId);
-		$projectList = new ProjectListModel();
+		if (empty($type)) {
+			$type = ProjectModel::TYPE_ALL;
+		}
+		$projectList = new ProjectListModel($type);
 		$projectList->read();
 
 		$data = array();

@@ -3,6 +3,7 @@ namespace models\rights;
 
 class Operation {
 
+	const VIEW			= 0;
 	const CREATE		= 1;
 	const EDIT_OWN		= 2;
 	const EDIT_OTHER	= 3;

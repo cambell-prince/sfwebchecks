@@ -89,8 +89,8 @@ class UserModel extends \models\mapper\MapperModel
 		//$projectModel->users->_removeRef($this->id);
 	}
 	
-	public function listProjects() {
-		$projectList = new ProjectList_UserModel($this->id->asString());
+	public function listProjects($type) {
+		$projectList = new ProjectList_UserModel($this->id->asString(), $type);
 		$projectList->read();
 		return $projectList;
 	}

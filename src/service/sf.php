@@ -201,10 +201,10 @@ class Sf
 		return $list;
 	}
 	
-	public function project_list_dto() {
+	public function project_list_dto($type) {
 		// Eventually this will need to get the current user id and do:
 		//return \models\dto\ProjectListDto::encode($userId);
-		return \models\dto\ProjectListDto::encode();
+		return \models\dto\ProjectListDto::listOf($type);
 	}
 	
 	public function project_readUser($projectId, $userId) {

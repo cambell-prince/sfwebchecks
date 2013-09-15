@@ -5,7 +5,8 @@ class Roles {
 	
 	const SYSTEM_ADMIN  = 'system_admin';
 	const PROJECT_ADMIN = 'project_admin';
-	const USER 			 = 'user';
+	const TYPE_SETTER   = 'typesetter';
+	const USER          = 'user';
 	
 	/**
 	 * @var array
@@ -29,6 +30,8 @@ class Roles {
 		$rights = array();
 		$rights[] = Domain::USERS + Operation::EDIT_OWN;
 		self::$_rights[Realm::SITE][Roles::USER] = $rights;
+		self::$_rights[Realm::SITE][Roles::TYPE_SETTER] = $rights;
+		self::$_rights[Realm::SITE][Roles::PROJECT_ADMIN] = $rights;
 		
 		// ----------------------------------------------------------
 		// PROJECT REALM
@@ -41,6 +44,13 @@ class Roles {
 		$rights[] = Domain::COMMENTS + Operation::EDIT_OWN;
 		
 		self::$_rights[Realm::PROJECT][Roles::USER] = $rights;
+		
+		// Type Setter
+		$rights = self::$_rights[Realm::PROJECT][Roles::USER];
+		$rights[] = Domain::TS_COMPONENTS + Operation::CREATE;
+		$rights[] = Domain::TS_COMPONENTS + Operation::EDIT_OTHER;
+		
+		self::$_rights[Realm::PROJECT][Roles::TYPE_SETTER] = $rights;
 		
 		// Project Admin
 		$rights = self::$_rights[Realm::PROJECT][Roles::USER];

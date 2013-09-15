@@ -37,6 +37,10 @@ class ProjectModelMongoMapper extends \models\mapper\MongoMapper
 
 class ProjectModel extends \models\mapper\MapperModel
 {
+	const TYPE_ALL             = ''; // Used for comparison in queries that otherwise expect a type.
+	const TYPE_COMMUNITY_CHECK = 'check';
+	const TYPE_TYPESET         = 'typeset';
+	
 	public function __construct($id = '') {
 		$this->id = new Id();
 		$this->users = new MapOf(function($data) {
@@ -48,7 +52,7 @@ class ProjectModel extends \models\mapper\MapperModel
 	public function databaseName() {
 		$name = strtolower($this->projectname);
 		$name = str_replace(' ', '_', $name);
-		return 'sf_' . $name;
+		return 'sf_' . $name . '_' . $this->type;
 	}
 
 	/**
@@ -141,6 +145,11 @@ class ProjectModel extends \models\mapper\MapperModel
 	public $language;
 	
 	/**
+	 * @var string
+	 */
+	public $type;
+	
+	/**
 	 * @var MapOf<ProjectRoleModel>
 	 */
 	public $users;
@@ -151,25 +160,33 @@ class ProjectModel extends \models\mapper\MapperModel
 
 class ProjectListModel extends \models\mapper\MapperListModel
 {
-	public function __construct()
+	public function __construct($type)
 	{
-		parent::__construct(
-			ProjectModelMongoMapper::instance(),
-			array(),
-			array('projectname', 'language')
-		);
+		if ($type == ProjectModel::TYPE_ALL) {
+			parent::__construct(
+					ProjectModelMongoMapper::instance(),
+					array(),
+					array('projectname', 'language', 'type')
+			);
+		} else {
+			parent::__construct(
+					ProjectModelMongoMapper::instance(),
+					array('type' => array('$in' => array($type))),
+					array('projectname', 'language', 'type')
+			);
+		}
 	}
 }
 
 class ProjectList_UserModel extends \models\mapper\MapperListModel
 {
 
-	public function __construct($userId)
+	public function __construct($userId, $type)
 	{
 		parent::__construct(
 				ProjectModelMongoMapper::instance(),
-				array('users.' . $userId => array('$exists' => true)),
-				array('projectname')
+				array('type' => array('$in' => array($type)), 'users.' . $userId => array('$exists' => true)),
+				array('projectname', 'language', 'type')
 		);
 	}
 

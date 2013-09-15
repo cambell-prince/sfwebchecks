@@ -1,5 +1,7 @@
 <?php
 
+use models\ProjectModel;
+
 use models\rights\Operation;
 use models\rights\Domain;
 use models\rights\Realm;
@@ -46,11 +48,11 @@ class Base extends CI_Controller {
 			$this->viewdata['user_name'] = $this->_user->username;
 			$this->viewdata['small_gravatar_url'] = $this->ion_auth->get_gravatar("30");
 			$this->viewdata['small_avatar_url'] = $this->_user->avatar_ref;
-			$projects = $this->_user->listProjects();
+			$projects = $this->_user->listProjects(ProjectModel::TYPE_COMMUNITY_CHECK);
 			$this->viewdata['projects_count'] = $projects->count;
 			$this->viewdata['projects'] = $projects->entries;
 			if ($isAdmin) {
-				$projectList = new models\ProjectListModel();
+				$projectList = new models\ProjectListModel(ProjectModel::TYPE_ALL);
 				$projectList->read();
 				$this->viewdata['all_projects_count'] = $projectList->count;
 				$this->viewdata['all_projects'] = $projectList->entries;
