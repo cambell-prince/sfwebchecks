@@ -40,7 +40,7 @@ class Typeset
 	
 	public function component_update($projectId, $object) {
 		$projectModel = new \models\ProjectModel($projectId);
-		$componentModel = new \models\ComponentModel($projectModel);
+		$componentModel = new \models\typeset\ComponentModel($projectModel);
 		$isNewComponent = ($object['id'] == '');
 		if (!$isNewComponent) {
 			$componentModel->read($object['id']);

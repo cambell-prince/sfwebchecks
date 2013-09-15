@@ -8,9 +8,11 @@
 	<form class="well">
 	<fieldset>
 	<label>Name</label>
-	<input ng-model="title" class="span4" type="text" placeholder="Name"/>
+	<input ng-model="newComponent.name" class="span4" type="text" placeholder="Name"/>
+	<label>Type</label>
+	<select ng-model="newComponent.type" class="span4" ng-options="value.key as value.label for value in componentTypes"></select>
 	<label></label>
-	<button type="submit" class="btn" ng-click="addComponent(); newComponentCollapsed = true"><i class="icon-pencil"></i>Add Component to Project</button>
+	<button type="submit" class="btn" ng-click="addComponent()"><i class="icon-pencil"></i>Add Component to Project</button>
 	</fieldset>
 	</form>
 </div>

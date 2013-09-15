@@ -61,6 +61,7 @@ angular.module(
 				}
 			});
 		};
+		
 		// Remove
 		$scope.removeComponents = function() {
 			console.log("removeComponents()");
@@ -81,13 +82,18 @@ angular.module(
 			});
 		};
 		// Add
+		$scope.newComponent = {};
+		$scope.componentTypes = [
+             {key: 'book',  label: 'Book'},
+             {key: 'cover', label: 'Cover'},
+             {key: 'map',   label: 'Map'},
+        ];
+		$scope.newComponent.type = 'book';
 		$scope.addComponent = function() {
 			console.log("addComponent()");
-			var model = {};
-			model.id = '';
-			model.title = $scope.title;
-			model.content = $scope.content;
-			componentService.update(projectId, model, function(result) {
+			$scope.newComponentCollapsed = true;
+			$scope.newComponent.id = '';
+			componentService.update(projectId, $scope.newComponent, function(result) {
 				if (result.ok) {
 					$scope.queryComponents();
 				}
