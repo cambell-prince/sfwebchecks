@@ -1,5 +1,7 @@
 <?php
 
+use models\typeset\ComponentModel;
+
 use models\UserModel;
 use models\dto\ProjectSettingsDto;
 use models\ProjectModel;
@@ -40,22 +42,23 @@ class Typeset
 	
 	public function component_update($projectId, $object) {
 		$projectModel = new \models\ProjectModel($projectId);
-		$componentModel = new \models\typeset\ComponentModel($projectModel);
 		$isNewComponent = ($object['id'] == '');
-		if (!$isNewComponent) {
-			$componentModel->read($object['id']);
+		if ($isNewComponent) {
+			$componentModel = ComponentModel::create($projectModel, $object);
+		} else {
+			$componentModel = ComponentModel::readd($projectModel, $object['id']);
 		}
 		JsonDecoder::decode($componentModel, $object);
 		$componentId = $componentModel->write();
-		if ($isNewComponent) {
-			ActivityCommands::addComponent($projectModel, $componentId, $componentModel);
-		}
+// 		if ($isNewComponent) {
+// 			ActivityCommands::addComponent($projectModel, $componentId, $componentModel);
+// 		}
 		return $componentId;
 	}
 	
 	public function component_read($projectId, $componentId) {
 		$projectModel = new \models\ProjectModel($projectId);
-		$componentModel = new \models\ComponentModel($projectModel, $componentId);
+		$componentModel = ComponentModel::readd($projectModel, $componentId);
 		return JsonEncoder::encode($componentModel);
 	}
 	

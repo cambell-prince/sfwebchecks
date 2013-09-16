@@ -2,6 +2,7 @@
 
 namespace models\typeset;
 
+use libraries\palaso\CodeGuard;
 use models\mapper\Id;
 
 require_once(APPPATH . '/models/ProjectModel.php');
@@ -28,13 +29,16 @@ class ComponentModelMongoMapper extends \models\mapper\MongoMapper
 
 class ComponentModel extends \models\mapper\MapperModel
 {
+	
+	const TYPE_BOOK  = 'book';
+	const TYPE_COVER = 'cover';
+	
 	/**
 	 * @var ProjectModel;
 	 */
 	private $_projectModel;
 	
-	public function __construct($projectModel, $id = '')
-	{
+	public function __construct($projectModel, $id = '') {
 		$this->id = new Id();
 		$this->_projectModel = $projectModel;
 		$databaseName = $projectModel->databaseName();
@@ -43,6 +47,29 @@ class ComponentModel extends \models\mapper\MapperModel
 
 	public static function remove($databaseName, $id) {
 		ComponentModelMongoMapper::connect($databaseName)->remove($id);
+	}
+	
+	public static function readd($projectModel, $id) {
+		ComponentModelMongoMapper::connect($databaseName)->read(
+			function($data) use ($projectModel) {
+				return self::create($projectModel, $data);
+			},
+			$id
+		);
+	}
+	
+	public static function create($projectModel, $data) {
+		$type = $data['type'];
+		CodeGuard::checkNullAndThrow($type, 'type');
+		switch ($type) {
+			case self::TYPE_BOOK:
+				return new BookModel($projectModel);
+			case self::TYPE_COVER:
+				return new CoverModel($projectModel);
+			default:
+				throw new \Exception("Unsupported Component type '$type'");
+		}
+		
 	}
 
 	public $id;

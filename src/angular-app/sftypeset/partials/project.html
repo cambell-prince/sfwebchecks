@@ -22,13 +22,15 @@
 	<thead>
 	<tr>
 		<th width="16px" align="center"></th>
+		<th>Type</th>
 		<th>Component</th>
 	</tr>
 	</thead>
 	<tbody>
 	<tr ng-repeat="component in visibleComponents" class="details-row" ng-class="{active: isSelected(component)}">
 		<td width="16px" align="center"><div ng-show="rights.deleteOther"><input type="checkbox" ng-checked="isSelected(component)" ng-click="updateSelection($event, component)" /></div></td>
-		<td><a href="{{component.url}}"><span class="larger-text">{{component.title}}</span></a></td>
+		<td>{{component.type}}</td>
+		<td><a href="{{componentUrl(component)}}"><span class="larger-text">{{component.name}}</span></a></td>
 	</tr>
 	</tbody>
 	</table>

@@ -46,7 +46,6 @@ angular.module(
 			componentService.list(projectId, function(result) {
 				if (result.ok) {
 					$scope.components = result.data.entries;
-					$scope.enhanceDto($scope.components);
 					$scope.componentsCount = result.data.count;
 
 					$scope.project = result.data.project;
@@ -61,6 +60,10 @@ angular.module(
 				}
 			});
 		};
+		
+		$scope.componentUrl = function(component) {
+			return '/app/sftypeset#/project/' + projectId + '/' + component.type + '/' + component.id;
+		}; 
 		
 		// Remove
 		$scope.removeComponents = function() {
@@ -125,12 +128,6 @@ angular.module(
 			return fakeData.unreadComments;
 		};
 		
-		$scope.enhanceDto = function(items) {
-			for (var i in items) {
-				items[i].url = linkService.component($scope.projectId, items[i].id);
-			}
-		};
-
 	}])
 	.controller('ProjectSettingsCtrl', ['$scope', '$location', '$routeParams', 'breadcrumbService', 'userService', 'projectService', 'sessionService',
 	                                 function($scope, $location, $routeParams, breadcrumbService, userService, projectService, ss) {
