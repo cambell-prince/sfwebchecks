@@ -115,10 +115,10 @@ class MongoMapper
 	}
 	
 	/**
-	 * @param Object $model
+	 * @param function $modelGenerator
 	 * @param string $id
 	 */
-	public function read($model, $id) {
+	public function read($modelGenerator, $id) {
 		CodeGuard::checkTypeAndThrow($id, 'string');
 		$data = $this->_collection->findOne(array("_id" => self::mongoID($id)));
 		if ($data === NULL) {
@@ -126,6 +126,7 @@ class MongoMapper
 			throw new \Exception("Could not find id '$id'in '$collection'");
 		}
 		try {
+			$model = $modelGenerator($data);
 			MongoDecoder::decode($model, $data, $id);
 		} catch (\Exception $ex) {
 			throw new \Exception("Exception thrown while reading '$id'", $ex->getCode(), $ex);

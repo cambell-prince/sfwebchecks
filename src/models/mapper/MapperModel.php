@@ -31,7 +31,7 @@ class MapperModel
 	 * @see MongoMapper::read()
 	 */
 	function read($id) {
-		return $this->_mapper->read($this, $id);
+		return $this->_mapper->read(function($data) { return $this; }, $id);
 	}
 	
 	/**
