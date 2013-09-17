@@ -154,6 +154,9 @@ class ProjectModel extends \models\mapper\MapperModel
 	 */
 	public $users;
 	
+	/**
+	 * @var string
+	 */
 	public $projectCode;
 	
 }
