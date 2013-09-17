@@ -1,23 +1,22 @@
 <?php
 
-use models\typeset\ComponentModel;
-
-use models\UserModel;
-use models\dto\ProjectSettingsDto;
-use models\ProjectModel;
 use libraries\palaso\CodeGuard;
 use libraries\palaso\JsonRpcServer;
-use models\commands\ComponentCommands;
+use models\UserModel;
+use models\ProjectModel;
+use models\dto\ProjectSettingsDto;
+use models\commands\GroupCommands;
 use models\commands\UserCommands;
 use models\mapper\Id;
 use models\mapper\JsonEncoder;
 use models\mapper\JsonDecoder;
+use models\typeset\GroupModel;
 
 require_once(APPPATH . 'config/sf_config.php');
 
 require_once(APPPATH . 'models/ProjectModel.php');
 require_once(APPPATH . 'models/UserModel.php');
-require_once(APPPATH . 'models/typeset/ComponentModel.php');
+require_once(APPPATH . 'models/typeset/GroupModel.php');
 
 class Typeset
 {
@@ -40,45 +39,45 @@ class Typeset
 	// COMPONENT API
 	//---------------------------------------------------------------
 	
-	public function component_update($projectId, $object) {
+	public function group_update($projectId, $object) {
 		$projectModel = new \models\ProjectModel($projectId);
 		$isNewComponent = ($object['id'] == '');
 		if ($isNewComponent) {
-			$componentModel = ComponentModel::create($projectModel, $object);
+			$groupModel = GroupModel::create($projectModel, $object);
 		} else {
-			$componentModel = ComponentModel::readd($projectModel, $object['id']);
+			$groupModel = GroupModel::readd($projectModel, $object['id']);
 		}
-		JsonDecoder::decode($componentModel, $object);
-		$componentId = $componentModel->write();
+		JsonDecoder::decode($groupModel, $object);
+		$groupId = $groupModel->write();
 // 		if ($isNewComponent) {
-// 			ActivityCommands::addComponent($projectModel, $componentId, $componentModel);
+// 			ActivityCommands::addComponent($projectModel, $groupId, $groupModel);
 // 		}
-		return $componentId;
+		return $groupId;
 	}
 	
-	public function component_read($projectId, $componentId) {
+	public function group_read($projectId, $groupId) {
 		$projectModel = new \models\ProjectModel($projectId);
-		$componentModel = ComponentModel::readd($projectModel, $componentId);
-		return JsonEncoder::encode($componentModel);
+		$groupModel = ComponentModel::readd($projectModel, $groupId);
+		return JsonEncoder::encode($groupModel);
 	}
 	
-	public function component_delete($projectId, $componentIds) {
-		return ComponentCommands::deleteComponents($projectId, $componentIds);
+	public function group_delete($projectId, $groupIds) {
+		return ComponentCommands::deleteComponents($projectId, $groupIds);
 	}
 	/*
-	public function component_list($projectId) {
+	public function group_list($projectId) {
 		$projectModel = new \models\ProjectModel($projectId);
-		$componentListModel = new \models\ComponentListModel($projectModel);
-		$componentListModel->read();
-		return $componentListModel;
+		$groupListModel = new \models\ComponentListModel($projectModel);
+		$groupListModel->read();
+		return $groupListModel;
 	}
 	*/
-	public function component_list($projectId) {
-		return \models\typeset\ComponentListDto::encode($projectId, $this->_userId);
+	public function group_list($projectId) {
+		return \models\typeset\GroupListDto::encode($projectId, $this->_userId);
 	}
 
-	public function component_settings_dto($projectId, $componentId) {
-		return \models\dto\ComponentSettingsDto::encode($projectId, $componentId, $this->_userId);
+	public function group_settings_dto($projectId, $groupId) {
+		return \models\dto\GroupSettingsDto::encode($projectId, $groupId, $this->_userId);
 	}
 	
 }

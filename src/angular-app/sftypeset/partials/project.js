@@ -4,8 +4,8 @@ angular.module(
 		'sftypeset.project',
 		[ 'sf.services', 'palaso.ui.listview', 'palaso.ui.typeahead', 'ui.bootstrap', 'sgw.ui.breadcrumb' ]
 	)
-	.controller('ProjectCtrl', ['$scope', 'componentService', '$routeParams', 'sessionService', 'breadcrumbService',
-	                            function($scope, componentService, $routeParams, ss, breadcrumbService) {
+	.controller('ProjectCtrl', ['$scope', 'groupService', '$routeParams', 'sessionService', 'breadcrumbService',
+	                            function($scope, groupService, $routeParams, ss, breadcrumbService) {
 		var projectId = $routeParams.projectId;
 		$scope.projectId = projectId;
 		
@@ -25,7 +25,7 @@ angular.module(
 		);
 
 		// Listview Selection
-		$scope.newComponentCollapsed = true;
+		$scope.newGroupCollapsed = true;
 		$scope.selected = [];
 		$scope.updateSelection = function(event, item) {
 			var selectedIndex = $scope.selected.indexOf(item);
@@ -40,13 +40,13 @@ angular.module(
 			return item != null && $scope.selected.indexOf(item) >= 0;
 		};
 		// Listview Data
-		$scope.components = [];
-		$scope.queryComponents = function() {
-			console.log("queryComponents()");
-			componentService.list(projectId, function(result) {
+		$scope.groups = [];
+		$scope.queryGroups = function() {
+			console.log("queryGroups()");
+			groupService.list(projectId, function(result) {
 				if (result.ok) {
-					$scope.components = result.data.entries;
-					$scope.componentsCount = result.data.count;
+					$scope.groups = result.data.entries;
+					$scope.groupsCount = result.data.count;
 
 					$scope.project = result.data.project;
 					$scope.project.settingsUrl = 'sftypeset#/project/' + $scope.project.id + '/settings';
@@ -61,44 +61,44 @@ angular.module(
 			});
 		};
 		
-		$scope.componentUrl = function(component) {
-			return '/app/sftypeset#/project/' + projectId + '/' + component.type + '/' + component.id;
+		$scope.groupUrl = function(group) {
+			return '/app/sftypeset#/project/' + projectId + '/' + group.type + '/' + group.id;
 		}; 
 		
 		// Remove
-		$scope.removeComponents = function() {
-			console.log("removeComponents()");
-			var componentIds = [];
+		$scope.removeGroups = function() {
+			console.log("removeGroups()");
+			var groupIds = [];
 			for(var i = 0, l = $scope.selected.length; i < l; i++) {
-				componentIds.push($scope.selected[i].id);
+				groupIds.push($scope.selected[i].id);
 			}
 			if (l == 0) {
 				// TODO ERROR
 				return;
 			}
-			componentService.remove(projectId, componentIds, function(result) {
+			groupService.remove(projectId, groupIds, function(result) {
 				if (result.ok) {
 					$scope.selected = []; // Reset the selection
-					$scope.queryComponents();
+					$scope.queryGroups();
 					// TODO
 				}
 			});
 		};
 		// Add
-		$scope.newComponent = {};
-		$scope.componentTypes = [
+		$scope.newGroup = {};
+		$scope.groupTypes = [
              {key: 'book',  label: 'Book'},
              {key: 'cover', label: 'Cover'},
              {key: 'map',   label: 'Map'},
         ];
-		$scope.newComponent.type = 'book';
-		$scope.addComponent = function() {
-			console.log("addComponent()");
-			$scope.newComponentCollapsed = true;
-			$scope.newComponent.id = '';
-			componentService.update(projectId, $scope.newComponent, function(result) {
+		$scope.newGroup.type = 'book';
+		$scope.addGroup = function() {
+			console.log("addGroup()");
+			$scope.newGroupCollapsed = true;
+			$scope.newGroup.id = '';
+			groupService.update(projectId, $scope.newGroup, function(result) {
 				if (result.ok) {
-					$scope.queryComponents();
+					$scope.queryGroups();
 				}
 			});
 		};
@@ -112,19 +112,19 @@ angular.module(
 			unreadComments: -8
 		};
 
-		$scope.getQuestionCount = function(component) {
-			return component.questionCount;
+		$scope.getQuestionCount = function(group) {
+			return group.questionCount;
 		};
 
-		$scope.getViewsCount = function(component) {
+		$scope.getViewsCount = function(group) {
 			return fakeData.viewsCount;
 		};
 
-		$scope.getUnreadAnswers = function(component) {
+		$scope.getUnreadAnswers = function(group) {
 			return fakeData.unreadAnswers;
 		};
 
-		$scope.getUnreadComments = function(component) {
+		$scope.getUnreadComments = function(group) {
 			return fakeData.unreadComments;
 		};
 		

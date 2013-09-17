@@ -1,9 +1,9 @@
 <?php
 namespace models\typeset;
 
-use models\typeset\ComponentModel;
+use models\typeset\GroupModel;
 
-class BookModel extends ComponentModel
+class BookModel extends GroupModel
 {
 	public function __construct($projectModel) {
 		parent::__construct($projectModel);

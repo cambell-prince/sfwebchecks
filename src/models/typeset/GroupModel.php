@@ -7,27 +7,27 @@ use models\mapper\Id;
 
 require_once(APPPATH . '/models/ProjectModel.php');
 
-class ComponentModelMongoMapper extends \models\mapper\MongoMapper
+class GroupModelMongoMapper extends \models\mapper\MongoMapper
 {
 	/**
-	 * @var ComponentModelMongoMapper[]
+	 * @var GroupModelMongoMapper[]
 	 */
 	private static $_pool = array();
 	
 	/**
 	 * @param string $databaseName
-	 * @return ComponentModelMongoMapper
+	 * @return GroupModelMongoMapper
 	 */
 	public static function connect($databaseName) {
 		if (!isset(static::$_pool[$databaseName])) {
-			static::$_pool[$databaseName] = new ComponentModelMongoMapper($databaseName, 'components');
+			static::$_pool[$databaseName] = new GroupModelMongoMapper($databaseName, 'groups');
 		}
 		return static::$_pool[$databaseName];
 	}
 	
 }
 
-class ComponentModel extends \models\mapper\MapperModel
+class GroupModel extends \models\mapper\MapperModel
 {
 	
 	const TYPE_BOOK  = 'book';
@@ -42,15 +42,15 @@ class ComponentModel extends \models\mapper\MapperModel
 		$this->id = new Id();
 		$this->_projectModel = $projectModel;
 		$databaseName = $projectModel->databaseName();
-		parent::__construct(ComponentModelMongoMapper::connect($databaseName), $id);
+		parent::__construct(GroupModelMongoMapper::connect($databaseName), $id);
 	}
 
 	public static function remove($databaseName, $id) {
-		ComponentModelMongoMapper::connect($databaseName)->remove($id);
+		GroupModelMongoMapper::connect($databaseName)->remove($id);
 	}
 	
 	public static function readd($projectModel, $id) {
-		ComponentModelMongoMapper::connect($databaseName)->read(
+		GroupModelMongoMapper::connect($databaseName)->read(
 			function($data) use ($projectModel) {
 				return self::create($projectModel, $data);
 			},
@@ -67,7 +67,7 @@ class ComponentModel extends \models\mapper\MapperModel
 			case self::TYPE_COVER:
 				return new CoverModel($projectModel);
 			default:
-				throw new \Exception("Unsupported Component type '$type'");
+				throw new \Exception("Unsupported Group type '$type'");
 		}
 		
 	}
@@ -80,13 +80,13 @@ class ComponentModel extends \models\mapper\MapperModel
 	
 }
 
-class ComponentListModel extends \models\mapper\MapperListModel
+class GroupListModel extends \models\mapper\MapperListModel
 {
 
 	public function __construct($projectModel)
 	{
 		parent::__construct(
-			ComponentModelMongoMapper::connect($projectModel->databaseName()),
+			GroupModelMongoMapper::connect($projectModel->databaseName()),
 			array(),
 			array('type', 'name')
 		);

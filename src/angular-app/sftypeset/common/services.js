@@ -3,21 +3,21 @@
 /* SF Typeset Services */
 
 angular.module('sftypeset.services', [])
-	.service('componentService', ['jsonRpc', function(jsonRpc) {
-		this.read = function(projectId, componentId, callback) {
-			jsonRpc.call('/api/typeset', 'component_read', [projectId, componentId], callback);
+	.service('groupService', ['jsonRpc', function(jsonRpc) {
+		this.read = function(projectId, groupId, callback) {
+			jsonRpc.call('/api/typeset', 'group_read', [projectId, groupId], callback);
 		};
 		this.update = function(projectId, model, callback) {
-			jsonRpc.call('/api/typeset', 'component_update', [projectId, model], callback);
+			jsonRpc.call('/api/typeset', 'group_update', [projectId, model], callback);
 		};
-		this.remove = function(projectId, componentIds, callback) {
-			jsonRpc.call('/api/typeset', 'component_delete', [projectId, componentIds], callback);
+		this.remove = function(projectId, groupIds, callback) {
+			jsonRpc.call('/api/typeset', 'group_delete', [projectId, groupIds], callback);
 		};
 		this.list = function(projectId, callback) {
-			jsonRpc.call('/api/typeset', 'component_list', [projectId], callback);
+			jsonRpc.call('/api/typeset', 'group_list', [projectId], callback);
 		};
-		this.settings_dto = function(projectId, componentId, callback) {
-			jsonRpc.call('/api/typeset', 'component_settings_dto', [projectId, componentId], callback);
+		this.settings_dto = function(projectId, groupId, callback) {
+			jsonRpc.call('/api/typeset', 'group_settings_dto', [projectId, groupId], callback);
 		};
 	}])
 	;
