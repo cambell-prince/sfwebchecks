@@ -29,6 +29,9 @@ angular.module('sf.services', ['jsonRpc'])
 		this.create = function(model, callback) {
 			jsonRpc.call('/api/sf', 'user_create', [model], callback);
 		};
+		this.register = function(model, callback) {
+			jsonRpc.call('/api/sf', 'user_register', [model], callback);
+		};
 	}])
 	.service('projectService', ['jsonRpc', function(jsonRpc) {
 		
@@ -115,6 +118,12 @@ angular.module('sf.services', ['jsonRpc'])
 		};
 		this.remove_comment = function(projectId, questionId, answerId, commentId, callback) {
 			jsonRpc.call('/api/sf', 'question_remove_comment', [projectId, questionId, answerId, commentId], callback);
+		};
+		this.answer_voteUp = function(projectId, questionId, answerId, callback) {
+			jsonRpc.call('/api/sf', 'answer_vote_up', [projectId, questionId, answerId], callback);
+		};
+		this.answer_voteDown = function(projectId, questionId, answerId, callback) {
+			jsonRpc.call('/api/sf', 'answer_vote_down', [projectId, questionId, answerId], callback);
 		};
 	}])
 	.service('activityPageService', ['jsonRpc', function(jsonRpc) {

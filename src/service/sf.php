@@ -111,11 +111,11 @@ class Sf
 	}
 	
 	/**
-	 * Create a new user with password
+	 * Register a new user with password
 	 * @param UserModel $json
 	 * @return string Id of written object
 	 */
-	public function user_create($params) {
+	public function user_register($params) {
 		$captcha_info = $this->_controller->session->userdata('captcha_info');
 		if (strtolower($captcha_info['code']) != strtolower($params['captcha'])) {
 			return false;  // captcha does not match
@@ -128,8 +128,19 @@ class Sf
 		$user->encryptPassword();
 		$user->active = false;
 		$user->role = "user";
-		$user->write();
-		return true;
+		return $user->write();
+	}
+	
+	public function user_create($params) {
+		// TODO cjh 2013-09 assure that authenticated user executing this action has privilege to create an user
+		$user = new \models\UserModelWithPassword();
+		JsonDecoder::decode($user, $params);
+		if (UserModel::userNameExists($user->username)) {
+			return false;
+		}
+		$user->encryptPassword();
+		return $user->write();
+		
 	}
 	
 	public function get_captcha_src() {
@@ -350,7 +361,18 @@ class Sf
 		return \models\dto\QuestionListDto::encode($projectId, $textId, $this->_userId);
 	}
 	
-	// ---------------- Activity Feed -----------------
+	public function answer_vote_up($projectId, $questionId, $answerId) {
+		return QuestionCommands::voteUp($this->_userId, $projectId, $questionId, $answerId);
+	}
+	
+	public function answer_vote_down($projectId, $questionId, $answerId) {
+		return QuestionCommands::voteDown($this->_userId, $projectId, $questionId, $answerId);
+	}
+	
+	//---------------------------------------------------------------
+	// Activity Log
+	//---------------------------------------------------------------
+
 	public function activity_list_dto() {
 		return \models\dto\ActivityListDto::getActivityForUser($this->_userId);
 	}
