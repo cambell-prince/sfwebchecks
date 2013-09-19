@@ -21,7 +21,50 @@ class RapumaDecoder {
 	public static function decode($model, $values, $id = '') {
 		$decoder = new RapumaDecoder();
 		// TODO Parse array of strings into array of property -> value then call _decode.
-		$decoder->_decode($model, $values, $id);
+// 		$decoder->_decode($model, $values, $id);
+	}
+	
+	public static function parse($strings) {
+		$result = array();
+		$current =& $result;
+		$currentGroup =& $current;
+		foreach ($strings as $string) {
+			$string = trim($string);
+			if ($string == '') {
+				continue;
+			}
+			if ($string[0] == '#') {
+				continue;
+			}
+			if ($string[0] == '[') {
+				$matches = array();
+				preg_match('/(\[+)([^\]]+)(\]+)/', $string, $matches);
+				if (count($matches) != 4) {
+					throw new \Exception("Broken group '$string'");
+				}
+				$bracketCount = strlen($matches[1]);
+				$name = $matches[2];
+				if ($bracketCount == 1) {
+					$current =& $result;
+				} else if ($bracketCount == 2) {
+					$current =& $currentGroup;
+				}
+				$current[$name] = array();
+				$current =& $current[$name];
+				if ($bracketCount == 1) {
+					$currentGroup =& $current;
+				}
+			} else {
+				// Its a property so add to the current container.
+				$matches = array();
+				preg_match('/(\w+)\s*=\s*(.+)/', $string, $matches);
+				if (count($matches) != 3) {
+					throw new \Exception("Broken property '$string'");
+				}
+				$current[$matches[1]] = trim($matches[2], '"');
+			}
+		}
+		return $result;
 	}
 	
 	/**

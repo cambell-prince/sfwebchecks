@@ -1,9 +1,7 @@
 <?php
 
-use models\mapper\Id;
-
 use models\mapper\ArrayOf;
-
+use models\mapper\Id;
 use models\mapper\rapuma\RapumaDecoder;
 
 require_once(dirname(__FILE__) . '/../../TestConfig.php');
@@ -80,8 +78,57 @@ class TestRapumaDecoder extends UnitTestCase {
 
 	function __construct() {
 	}
+	/*
+	function testRegEx_Groups() {
+		$string = "[[[Some Group]]]";
+		$matches = array();
+
+		$result = preg_match('/(\[+)([^\]]+)(\]+)/', $string, $matches);
+		var_dump($result, $matches);
+	}
+
+	function testRegEx_Properties() {
+		$string = "Property  = \" some value \"";
+		$matches = array();
+
+		$result = preg_match('/(\w+)\s*=\s*(.+)/', $string, $matches);
+		var_dump($result, $matches);
+	}
+
+	function testRegEx_QuotedString() {
+		// http://blog.stevenlevithan.com/archives/match-quoted-string
+		// http://stackoverflow.com/questions/3568995/how-do-i-match-a-pattern-with-optional-surrounding-quotes
+		$string = "Property  = \" some value \"";
+		$matches = array();
+		
+		$result = preg_match('/(["\'])(?:\\?.)*?\1/', $string, $matches);
+		var_dump($result, $matches);
+		
+	}
+	*/
 	
-	function test_ok() {
+	function testParse_ok() {
+		$values = <<<EOT
+# Comment line, should be ignored
+[ProjectInfo]
+    projectCreatorVersion = 0.6.r808
+    languageCode = "no quotes"
+		
+[Managers]
+    [[usfm_Text]]
+        sourceEncode = utf8
+        workEncode = utf8
+    [[usfm_Xetex]]
+        draftBackground = linesWatermark, draftWatermark
+        freezeTexSettings = False
+[Other]
+	something = value
+EOT;
+		$result = RapumaDecoder::parse(explode("\n", $values));
+		var_dump($result);
+	}
+	
+	function xtest_ok() {
 		$values = <<<EOT
 # Comment line, should be ignored
 [ProjectInfo]
