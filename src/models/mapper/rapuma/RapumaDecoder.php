@@ -2,6 +2,9 @@
 namespace models\mapper\rapuma;
 
 use libraries\palaso\CodeGuard;
+use models\mapper\ArrayOf;
+use models\mapper\Id;
+use models\mapper\IdReference;
 
 class RapumaDecoder {
 	
@@ -22,7 +25,6 @@ class RapumaDecoder {
 		$decoder = new RapumaDecoder();
 		// TODO Parse array of strings into array of property -> value then call _decode.
 		$values = self::parse($strings);
-		var_dump($values);
 		$decoder->_decode($model, $values, $id);
 	}
 	
@@ -46,6 +48,7 @@ class RapumaDecoder {
 				}
 				$bracketCount = strlen($matches[1]);
 				$name = $matches[2];
+				$name{0} = strtolower($name{0});
 				if ($bracketCount == 1) {
 					$current =& $result;
 				} else if ($bracketCount == 2) {
@@ -63,7 +66,9 @@ class RapumaDecoder {
 				if (count($matches) != 3) {
 					throw new \Exception("Broken property '$string'");
 				}
-				$current[$matches[1]] = trim($matches[2], '"');
+				$name = $matches[1];
+				$name{0} = strtolower($name{0});
+				$current[$name] = trim($matches[2], '"');
 			}
 		}
 		return $result;
@@ -139,7 +144,7 @@ class RapumaDecoder {
 	 * @param string $id
 	 */
 	public function decodeId($key, $model, $values, $id) {
-		$model->$key = new Id($values[$key]);
+		$model->$key = new Id($id);
 	}
 	
 	/**
@@ -150,10 +155,10 @@ class RapumaDecoder {
 	public function decodeArrayOf($key, $model, $data) {
 		CodeGuard::checkTypeAndThrow($data, 'array');
 		$model->data = array();
-		foreach ($data as $item) {
+		foreach ($data as $key => $item) {
 			if ($model->getType() == ArrayOf::OBJECT) {
-				$object = $model->generate($item);
-				$this->_decode($object, $item, false);
+				$object = $model->generate($key);
+				$this->_decode($object, $item, $key);
 				$model->data[] = $object;
 			} else if ($model->getType() == ArrayOf::VALUE) {
 				if (is_array($item)) {

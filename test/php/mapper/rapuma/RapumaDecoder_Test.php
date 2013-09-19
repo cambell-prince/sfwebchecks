@@ -31,13 +31,13 @@ class DecoderUsfmXetex
 	
 	public $draftBackground;
 	
-	public $freezeTextSettings;
+	public $freezeTexSettings;
 	
 }
 
 class DecoderProjectInfo
 {
-	public $projectCreateVersion;
+	public $projectCreatorVersion;
 	
 	public $languageCode;
 }
@@ -54,9 +54,9 @@ class DecoderTestModel
 	
 	public static function createManager($data) {
 		switch ($data) {
-			case '':
+			case 'usfm_Text':
 				return new DecoderUsfmText();
-			case '':
+			case 'usfm_Xetex':
 				return new DecoderUsfmXetex();
 			default:
 				throw new \Exception("Unknown manager '$data'");
@@ -107,6 +107,7 @@ class TestRapumaDecoder extends UnitTestCase {
 	}
 	*/
 	
+	/*
 	function testParse_ok() {
 		$values = <<<EOT
 # Comment line, should be ignored
@@ -127,6 +128,7 @@ EOT;
 // 		$result = RapumaDecoder::parse(explode("\n", $values));
 // 		var_dump($result);
 	}
+	*/
 	
 	function test_ok() {
 		$values = <<<EOT
@@ -147,20 +149,20 @@ EOT;
 		
 		$model = new DecoderTestModel();
 		RapumaDecoder::decode($model, explode("\n", $values));
-		$this->assertEqual('0.6.r808', $model->projectInfo->projectCreateVersion);
+		$this->assertEqual('0.6.r808', $model->projectInfo->projectCreatorVersion);
 		$this->assertEqual('no quotes', $model->projectInfo->languageCode);
 		$this->assertEqual(2, $model->managers->count());
 		
 		// usfm_text
 		$item1 = $model->managers->data[0];
-		$this->assertIsA(item1, 'DecoderUsfmText');
+		$this->assertIsA($item1, 'DecoderUsfmText');
 		$this->assertEqual('usfm_Text', $item1->id->asString());
 		$this->assertEqual('utf8', $item1->sourceEncode);
 		$this->assertEqual('utf8', $item1->workEncode);
 		
 		// usfm_xetex
 		$item2 = $model->managers->data[1];
-		$this->assertIsA(item2, 'DecoderUsfmXetex');
+		$this->assertIsA($item2, 'DecoderUsfmXetex');
 		$this->assertEqual('usfm_Xetex', $item2->id->asString());
 		$this->assertEqual('linesWatermark, draftWatermark', $item2->draftBackground);
 		$this->assertEqual('False', $item2->freezeTexSettings);
