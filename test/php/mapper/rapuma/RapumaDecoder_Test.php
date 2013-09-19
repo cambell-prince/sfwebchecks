@@ -124,11 +124,11 @@ class TestRapumaDecoder extends UnitTestCase {
 [Other]
 	something = value
 EOT;
-		$result = RapumaDecoder::parse(explode("\n", $values));
-		var_dump($result);
+// 		$result = RapumaDecoder::parse(explode("\n", $values));
+// 		var_dump($result);
 	}
 	
-	function xtest_ok() {
+	function test_ok() {
 		$values = <<<EOT
 # Comment line, should be ignored
 [ProjectInfo]
@@ -146,7 +146,7 @@ EOT;
 EOT;
 		
 		$model = new DecoderTestModel();
-		RapumaDecoder::decode($model, $values);
+		RapumaDecoder::decode($model, explode("\n", $values));
 		$this->assertEqual('0.6.r808', $model->projectInfo->projectCreateVersion);
 		$this->assertEqual('no quotes', $model->projectInfo->languageCode);
 		$this->assertEqual(2, $model->managers->count());

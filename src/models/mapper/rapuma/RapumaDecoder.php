@@ -18,10 +18,12 @@ class RapumaDecoder {
 	 * @param object $model
 	 * @param array $values A mixed array of JSON (like) data.
 	 */
-	public static function decode($model, $values, $id = '') {
+	public static function decode($model, $strings, $id = '') {
 		$decoder = new RapumaDecoder();
 		// TODO Parse array of strings into array of property -> value then call _decode.
-// 		$decoder->_decode($model, $values, $id);
+		$values = self::parse($strings);
+		var_dump($values);
+		$decoder->_decode($model, $values, $id);
 	}
 	
 	public static function parse($strings) {
