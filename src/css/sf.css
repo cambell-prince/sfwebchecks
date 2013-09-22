@@ -616,10 +616,6 @@ button i {
 	margin-right: 8px;
 }
 
-a i {
-	margin-right: 8px;
-}
-
 i.icon-remove {
 	color: #f66
 }
@@ -687,6 +683,15 @@ ul.topCrumbs .active {
 	color: #202020;
 }
 
+/* jqte fixes and overrides */
+.jqte_placeholder {
+	display: block;	
+}
+
+.jqte {
+	margin: 20px 0;
+}
+
 /* Question Page */
 table#answers tbody tr:hover, table tbody tr.altrow:hover {
 	background-color: #fff;
@@ -722,6 +727,8 @@ div.scripture-quote {
 div.vote {
 	text-align: center;
 	line-height: 1.0em;
+	margin-right: 16px;
+	margin-top: -8px;
 }
 
 div.vote a {
@@ -730,6 +737,10 @@ div.vote a {
 	color: #999;
 	text-decoration: none;
 	cursor: pointer;
+}
+
+div.vote a.disabled {
+	color: #eee;
 }
 
 div.vote span {
@@ -775,8 +786,8 @@ div#comments table.comments td {
 }
 
 /* New Item under ribbon bar */
-div.new-item form {
-	margin: 20px 0 0 0;
+div.new-item {
+	margin: 20px 0 20px 0;
 }
 
 .activity-date {

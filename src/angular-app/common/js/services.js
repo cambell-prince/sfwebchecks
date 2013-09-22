@@ -126,6 +126,21 @@ angular.module('sf.services', ['jsonRpc'])
 			jsonRpc.call('/api/sf', 'answer_vote_down', [projectId, questionId, answerId], callback);
 		};
 	}])
+	.service('questionTemplateService', ['jsonRpc', function(jsonRpc) {
+		jsonRpc.connect('/api/sf');
+		this.read = function(questionTemplateId, callback) {
+			jsonRpc.call('questionTemplate_read', [questionTemplateId], callback);
+		};
+		this.update = function(questionTemplate, callback) {
+			jsonRpc.call('questionTemplate_update', [questionTemplate], callback);
+		};
+		this.remove = function(questionTemplateIds, callback) {
+			jsonRpc.call('questionTemplate_delete', [questionTemplateIds], callback);
+		};
+		this.list = function(callback) {
+			jsonRpc.call('questionTemplate_list', [], callback);
+		};
+	}])
 	.service('activityPageService', ['jsonRpc', function(jsonRpc) {
 		this.list_activity = function(offset, count, callback) {
 			jsonRpc.call('/api/sf', 'activity_list_dto', [offset, count], callback);
@@ -146,7 +161,8 @@ angular.module('sf.services', ['jsonRpc'])
 				TEXTS:     function() { return 130;},
 				QUESTIONS: function() { return 140;},
 				ANSWERS:   function() { return 150;},
-				COMMENTS:  function() { return 160;}
+				COMMENTS:  function() { return 160;},
+				TEMPLATES: function() { return 170;}
 		};
 		this.operation = {
 				CREATE:       function() { return 1;},

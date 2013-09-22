@@ -10,7 +10,8 @@ class Domain {
 	const QUESTIONS		= 140;
 	const ANSWERS		= 150;
 	const COMMENTS		= 160;
-	const TS_COMPONENTS	= 170;
+	const TEMPLATES		= 170;
+	const TS_COMPONENTS	= 180;
 
 }
 

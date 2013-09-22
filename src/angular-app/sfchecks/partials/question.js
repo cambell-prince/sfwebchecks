@@ -2,12 +2,12 @@
 
 angular.module(
 		'sfchecks.question',
-		[ 'sf.services', 'palaso.ui.listview', 'palaso.ui.jqte', 'ui.bootstrap', 'palaso.ui.selection' ]
+		[ 'sf.services', 'palaso.ui.listview', 'palaso.ui.jqte', 'ui.bootstrap', 'palaso.ui.selection', 'palaso.ui.notice' ]
 	)
-	.controller('QuestionCtrl', ['$scope', '$routeParams', 'questionService', 'sessionService', 'breadcrumbService',
-	                             function($scope, $routeParams, questionService, ss, breadcrumbService) {
+	.controller('QuestionCtrl', ['$scope', '$routeParams', 'questionService', 'sessionService', 'breadcrumbService', 'silNoticeService',
+	                             function($scope, $routeParams, questionService, ss, breadcrumbService, notice) {
 		$scope.jqteOptions = {
-			'placeholder': 'Say what you think...',
+			'placeholder': 'Type your answer here. Click "Done" when finished.',
 			'u': false,
 			'indent': false,
 			'outdent': false,
@@ -41,11 +41,13 @@ angular.module(
 				]
 		);
 		
+		$scope.votes = {};
 		questionService.read(projectId, questionId, function(result) {
 			console.log('questionService.read(', projectId, questionId, ')');
 			if (result.ok) {
 				$scope.text = result.data.text;
 				$scope.question = result.data.question;
+				$scope.votes = result.data.votes;
 				$scope.project = result.data.project;
 				console.log(result.data);
 				breadcrumbService.updateCrumb('top', 1, {label: $scope.project.projectname});
@@ -54,8 +56,6 @@ angular.module(
 				// Keep track of answer count so we can show or hide "There are no answers" as appropriate
 				$scope.question.answerCount = Object.keys($scope.question.answers).length;
 				$scope.rights = result.data.rights;
-			} else {
-				// error condition
 			}
 		});
 		
@@ -68,7 +68,32 @@ angular.module(
 			var right = (userId == ss.currentUserId()) && ss.hasRight($scope.rights, ss.domain.ANSWERS, ss.operation.DELETE_OWN);
 			return right;
 		};
-
+		
+		$scope.rightsCloseQuestion = function(userId) {
+			return ss.hasRight($scope.rights, ss.domain.QUESTIONS, ss.operation.EDIT_OTHER);
+		}
+		
+		$scope.workflowStates = [
+			{
+				state: "open",
+				label: "Open"
+			},
+			{
+				state: "review",
+				label: "In Review"
+			},
+			{
+				state: "closed",
+				label: "Closed"
+			},
+		];
+		
+		$scope.questionIsClosed = function() {
+			if ($scope.question) {
+				return ($scope.question.workflowState == 'closed');
+			}
+		}
+		
 		$scope.editQuestionCollapsed = true;
 		$scope.showQuestionEditor = function() {
 			$scope.editQuestionCollapsed = false;
@@ -86,6 +111,7 @@ angular.module(
 				id: $scope.question.id,
 				title: $scope.question.title,
 				description: $scope.question.description,
+				workflowState: $scope.question.workflowState
 				// Do we need to copy the other values? Let's check:
 				//dateCreated: $scope.question.dateCreated,
 				//textRef: $scope.question.textRef,
@@ -96,20 +122,14 @@ angular.module(
 		$scope.updateQuestion = function(newQuestion) {
 			questionService.update(projectId, newQuestion, function(result) {
 				if (result.ok) {
+					notice.push(notice.SUCCESS, "The question was successfully updated")
 					questionService.read(projectId, newQuestion.id, function(result) {
 						if (result.ok) {
 							$scope.question = result.data.question;
 							// Recalculate answer count since the DB doesn't store it
 							$scope.question.answerCount = Object.keys($scope.question.answers).length;
-						} else {
-							// error condition
-							console.log('update_question failed to read DB after update');
-							console.log(result);
 						}
 					});
-				} else {
-					console.log('update_question ERROR');
-					console.log(result);
 				}
 			});
 		};
@@ -220,13 +240,15 @@ angular.module(
 		$scope.updateComment = function(answerId, answer, newComment) {
 			questionService.update_comment(projectId, questionId, answerId, newComment, function(result) {
 				if (result.ok) {
+						if (newComment.id == '') {
+							notice.push(notice.SUCCESS, "The comment was successfully submitted");
+						} else {
+							notice.push(notice.SUCCESS, "The comment was successfully updated");
+						}
 					for (var id in result.data) {
 						newComment = result.data[id]; // There should be one, and only one, record in result.data
 					}
 					$scope.question.answers[answerId].comments[newComment.id] = newComment;
-				} else {
-					console.log('update_comment ERROR');
-					console.log(result);
 				}
 			});
 		};
@@ -252,7 +274,7 @@ angular.module(
 			console.log('delete ', commentId);
 			questionService.remove_comment(projectId, questionId, answer.id, commentId, function(result) {
 				if (result.ok) {
-					console.log('remove_comment ok');
+					notice.push(notice.SUCCESS, "The comment was successfully removed");
 					// Delete locally
 					delete answer.comments[commentId];
 				}
@@ -268,18 +290,26 @@ angular.module(
 		};
 		
 		$scope.voteUp = function(answerId) {
+			if ($scope.votes[answerId] == true || $scope.questionIsClosed()) {
+				return;
+			}
 			questionService.answer_voteUp(projectId, questionId, answerId, function(result) {
 				if (result.ok) {
 					console.log('vote up ok');
+					$scope.votes[answerId] = true;
 					afterUpdateAnswer(result.data);
 				}
 			});
 		};
 		
 		$scope.voteDown = function(answerId) {
+			if ($scope.votes[answerId] != true || $scope.questionIsClosed()) {
+				return;
+			}
 			questionService.answer_voteDown(projectId, questionId, answerId, function(result) {
 				if (result.ok) {
-					console.log('vote up ok');
+					console.log('vote down ok');
+					delete $scope.votes[answerId];
 					afterUpdateAnswer(result.data);
 				}
 			});
@@ -288,7 +318,11 @@ angular.module(
 		$scope.updateAnswer = function(projectId, questionId, answer) {
 			questionService.update_answer(projectId, questionId, answer, function(result) {
 				if (result.ok) {
-					console.log('update_answer ok');
+					if (answer.id == '') {
+						notice.push(notice.SUCCESS, "The answer was successfully submitted");
+					} else {
+						notice.push(notice.SUCCESS, "The answer was successfully updated");
+					}
 					afterUpdateAnswer(result.data);
 				}
 			});
@@ -317,7 +351,7 @@ angular.module(
 			console.log('delete ', answerId);
 			questionService.remove_answer(projectId, questionId, answerId, function(result) {
 				if (result.ok) {
-					console.log('remove_answer ok');
+					notice.push(notice.SUCCESS, "The answer was successfully removed");
 					// Delete locally
 					delete $scope.question.answers[answerId];
 					// Recalculate answer count as it just changed
