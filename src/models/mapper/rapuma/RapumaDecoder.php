@@ -30,8 +30,9 @@ class RapumaDecoder {
 	
 	public static function parse($strings) {
 		$result = array();
-		$current =& $result;
-		$currentGroup =& $current;
+		$stack = array();
+		$stack[] =& $result;
+		$current =& $stack[0];
 		foreach ($strings as $string) {
 			$string = trim($string);
 			if ($string == '') {
@@ -49,16 +50,15 @@ class RapumaDecoder {
 				$bracketCount = strlen($matches[1]);
 				$name = $matches[2];
 				$name{0} = strtolower($name{0});
-				if ($bracketCount == 1) {
-					$current =& $result;
-				} else if ($bracketCount == 2) {
-					$current =& $currentGroup;
+
+				$stackSize = count($stack);
+				$current =& $stack[$bracketCount - 1];
+				for ($i = $bracketCount; $i < $stackSize; $i++) {
+					array_pop($stack);
 				}
 				$current[$name] = array();
+				$stack[] =& $current[$name];
 				$current =& $current[$name];
-				if ($bracketCount == 1) {
-					$currentGroup =& $current;
-				}
 			} else {
 				// Its a property so add to the current container.
 				$matches = array();

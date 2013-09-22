@@ -128,6 +128,30 @@ EOT;
 // 		$result = RapumaDecoder::parse(explode("\n", $values));
 // 		var_dump($result);
 	}
+	
+	function testArrayReference() {
+		$array1 = array('11', '12', '13');
+		$array2 = array('21', '22', '23');
+		$stack = array();
+		
+		$stack[] =& $array1;
+		$stack[] =& $array2;
+		
+		var_dump($array1);
+		var_dump($array2);
+		for ($l = 0, $m = count($stack); $l < $m; $l++) {
+			$current =& $stack[$l];
+			for ($i = 0, $c = count($current); $i < $c; $i++) {
+				$current[$i] += 100;
+			}
+		}
+		array_pop($stack);
+		
+		var_dump($stack);
+		
+		var_dump($array1);
+		var_dump($array2);
+	}
 	*/
 	
 	function test_ok() {
