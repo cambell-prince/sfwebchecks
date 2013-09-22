@@ -7,72 +7,7 @@ use models\mapper\rapuma\RapumaDecoder;
 require_once(dirname(__FILE__) . '/../../TestConfig.php');
 require_once(SimpleTestPath . 'autorun.php');
 
-class DecoderUsfmText
-{
-	public function __construct() {
-		$this->id = new Id();
-	}
-	
-	public $id;
-	
-	public $sourceEncode;
-	
-	public $workEncode;
-	
-}
-
-class DecoderUsfmXetex
-{
-	public function __construct() {
-		$this->id = new Id();
-	}
-	
-	public $id;
-	
-	public $draftBackground;
-	
-	public $freezeTexSettings;
-	
-}
-
-class DecoderProjectInfo
-{
-	public $projectCreatorVersion;
-	
-	public $languageCode;
-}
-
-class DecoderTestModel
-{
-	
-	public function __construct() {
-		$this->projectInfo = new DecoderProjectInfo();
-		$this->managers = new ArrayOf(ArrayOf::OBJECT, function($data) {
-			return self::createManager($data);
-		});
-	}
-	
-	public static function createManager($data) {
-		switch ($data) {
-			case 'usfm_Text':
-				return new DecoderUsfmText();
-			case 'usfm_Xetex':
-				return new DecoderUsfmXetex();
-			default:
-				throw new \Exception("Unknown manager '$data'");
-		}
-	}
-	
-	/**
-	 * @var DecoderProjectInfo
-	 */
-	public $projectInfo;
-	
-	/**
-	 * @var ArrayOf
-	 */
-	public $managers;
-}
+require_once('RapumaMapperTestEnvironment.php');
 
 class TestRapumaDecoder extends UnitTestCase {
 
@@ -165,28 +100,32 @@ EOT;
     [[usfm_Text]]
         sourceEncode = utf8
         workEncode = utf8
+        [[[Third Level]]]
+        levelThree = 3
+        
     [[usfm_Xetex]]
         draftBackground = linesWatermark, draftWatermark
         freezeTexSettings = False
 
 EOT;
 		
-		$model = new DecoderTestModel();
+		$model = new RapumaTestModel();
 		RapumaDecoder::decode($model, explode("\n", $values));
+// 		var_dump($model);
 		$this->assertEqual('0.6.r808', $model->projectInfo->projectCreatorVersion);
 		$this->assertEqual('no quotes', $model->projectInfo->languageCode);
 		$this->assertEqual(2, $model->managers->count());
 		
 		// usfm_text
 		$item1 = $model->managers->data[0];
-		$this->assertIsA($item1, 'DecoderUsfmText');
+		$this->assertIsA($item1, 'RapumaUsfmText');
 		$this->assertEqual('usfm_Text', $item1->id->asString());
 		$this->assertEqual('utf8', $item1->sourceEncode);
 		$this->assertEqual('utf8', $item1->workEncode);
 		
 		// usfm_xetex
 		$item2 = $model->managers->data[1];
-		$this->assertIsA($item2, 'DecoderUsfmXetex');
+		$this->assertIsA($item2, 'RapumaUsfmXetex');
 		$this->assertEqual('usfm_Xetex', $item2->id->asString());
 		$this->assertEqual('linesWatermark, draftWatermark', $item2->draftBackground);
 		$this->assertEqual('False', $item2->freezeTexSettings);

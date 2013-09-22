@@ -1,20 +1,14 @@
 <?php
 namespace models\mapper\rapuma;
 
+use models\mapper\JsonDecoder;
+
 use libraries\palaso\CodeGuard;
 use models\mapper\ArrayOf;
 use models\mapper\Id;
 use models\mapper\IdReference;
 
-class RapumaDecoder {
-	
-	/**
-	 * @param array $array
-`	 * @return bool
-	 */
-	public static function is_assoc($array) {
-		return (bool)count(array_filter(array_keys($array), 'is_string'));
-	}
+class RapumaDecoder extends JsonDecoder {
 	
 	/**
 	 * Sets the public properties of $model to values from $values[propertyName]
