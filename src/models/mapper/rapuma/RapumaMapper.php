@@ -1,6 +1,8 @@
 <?php
 namespace models\mapper\rapuma;
 
+use models\mapper\Rapuma\RapumaEncoder;
+
 use libraries\palaso\CodeGuard;
 
 class RapumaMapper
@@ -9,21 +11,19 @@ class RapumaMapper
 	/**
 	 * @var string
 	 */
-	protected $_filePath;
-
-	/**
-	 * Nested associatvie arrays of keys (sections, or sub-sections, or properties) and values as leaf nodes.
-	 * @var array
-	 */
-	protected $_data;
+	protected $_basePath;
 	
 	/**
-	 * @param string $database
-	 * @param string $collection
-	 * @param string $idKey defaults to id
+	 * @param string $basePath
 	 */
-	protected function __construct($filePath) {
-		$this->_filePath = $filePath;
+	public function __construct($basePath) {
+		if (substr($basePath, -1) != DIRECTORY_SEPARATOR) {
+			$basePath .= DIRECTORY_SEPARATOR;
+		}
+		$this->_basePath = $basePath;
+		if (!file_exists($this->_basePath)) {
+			throw new \Exception("Base path '$basePath' does not exist.");
+		}
 	}
 	
 	/**
@@ -32,60 +32,16 @@ class RapumaMapper
 	private function __clone() {
 	}
 
-	/**
-	 * Creates a string suitable for use as a key from the given string $s 
-	 * @param string $s
-	 * @return string
-	 */
-	public static function makeKey($s) {
-		$s = str_replace(array(' ', '-', '_'), '', $s);
-		return $s;
+	protected function filePath($id) {
+		return $this->_basePath . $id;
 	}
 	
 	/**
-	 * @return string
-	 */
-	public static function makeId() {
-		$id = new \MongoId();
-		return (string)$id;
-	}
-	
-	public function readListAsModels($model, $query, $fields = array()) {
-		$cursor = $this->_collection->find($query, $fields);
-		$data = array();
-		$data['count'] = $cursor->count();
-		$data['entries'] = array();
-		foreach ($cursor as $item) {
-			$data['entries'][(string)$item['_id']] = $item;
-		}
-		MongoDecoder::decode($model, $data);
-	}
-	
-	
-	public function readList($model, $query, $fields = array()) {
-		$cursor = $this->_collection->find($query, $fields);
-		$model->count = $cursor->count();
-		$model->entries = array();
-		foreach ($cursor as $item) {
-			$id = strval($item['_id']);
-			$item[$this->_idKey] = $id;
-			unset($item['_id']);
-			$model->entries[] = $item;
-		}
-	}
-	
-	
-	/**
-	 * 
 	 * @param string $id
 	 */
 	public function exists($id) {
 		CodeGuard::checkTypeAndThrow($id, 'string');
-		$data = $this->_collection->findOne(array("_id" => self::mongoID($id)));
-		if ($data == NULL) {
-			return false;	
-		}
-		return true;
+		return file_exists(self::filePath($id));
 	}
 	
 	/**
@@ -94,149 +50,47 @@ class RapumaMapper
 	 */
 	public function read($modelGenerator, $id) {
 		CodeGuard::checkTypeAndThrow($id, 'string');
-		$data = $this->_collection->findOne(array("_id" => self::mongoID($id)));
-		if ($data === NULL) {
-			$collection = (string)$this->_collection;
-			throw new \Exception("Could not find id '$id'in '$collection'");
+		$filePath = $this->filePath($id);
+		if (!file_exists($filePath)) {
+			throw new \Exception("Could not find id '$id'in '$this->_basePath'");
 		}
+		$string = file_get_contents($filePath);
+		$strings = explode("\n", $string);
 		try {
-			$model = $modelGenerator($data);
-			MongoDecoder::decode($model, $data, $id);
+			$model = $modelGenerator($strings);
+			RapumaDecoder::decode($model, $strings, $id);
 		} catch (\Exception $ex) {
 			throw new \Exception("Exception thrown while reading '$id'", $ex->getCode(), $ex);
 		}
 	}
 	
 	/**
-	 * 
-	 * @param Object $model
-	 * @param string $property
-	 * @param string $value
-	 * @return bool true on document found, false otherwise
-	 * Note that unlike the read() method, readByProperty() does NOT throw an exception if no document is found
-	 * 
-	 */
-	public function readByProperty($model, $property, $value) {
-		CodeGuard::checkTypeAndThrow($property, 'string');
-		CodeGuard::checkTypeAndThrow($value, 'string');
-		$data = $this->_collection->findOne(array($property => $value));
-		if ($data != NULL) {
-			MongoDecoder::decode($model, $data, $data['_id']);
-			return true;
-		}
-		return false;
-	}
-	
-	
-	public function readSubDocument($model, $rootId, $property, $id) {
-		CodeGuard::checkTypeAndThrow($rootId, 'string');
-		CodeGuard::checkTypeAndThrow($id, 'string');
-		$data = $this->_collection->findOne(array("_id" => self::mongoID($rootId)), array($property . '.' . $id));
-		if ($data === NULL) {
-			throw new \Exception("Could not find $property=$id in $rootId");
-		}
-		// TODO Check this out on nested sub docs > 1
-		$data = $data[$property][$id];
-		error_log(var_export($data, true));
-		MongoDecoder::decode($model, $data, $id);
-	}
-	
-	/**
 	 * @param object $model
 	 * @param string $id
-	 * @param int $keyStyle
-	 * @param string $rootId
-	 * @param string $property
-	 * @see ID_IN_KEY
-	 * @see ID_IN_DOC
 	 * @return string
 	 */
-	public function write($model, $id, $keyStyle = MongoMapper::ID_IN_KEY, $rootId = '', $property = '') {
-		CodeGuard::checkTypeAndThrow($rootId, 'string');
-		CodeGuard::checkTypeAndThrow($property, 'string');
+	public function write($model, $id) {
 		CodeGuard::checkTypeAndThrow($id, 'string');
-		$data = MongoEncoder::encode($model); // TODO Take into account key style for stripping key out of the model if needs be
-		if (empty($rootId)) {
-			// We're doing a root level update, only $model, $id are relevant
-			$id = $this->update($data, $id, self::ID_IN_KEY, '', '');
-		} else {
-			if ($keyStyle == self::ID_IN_KEY) {
-				CodeGuard::checkNullAndThrow($id, 'id');
-				$id = $this->update($data, $id, self::ID_IN_KEY, $rootId, $property);
-			} else {
-				if (empty($id)) {
-					// TODO would be nice if the encode above gave us the id it generated so we could return it to be consistent. CP 2013-08
-					$this->appendSubDocument($data, $rootId, $property);
-				} else {
-					$id = $this->update($data, $id, self::ID_IN_DOC, $rootId, $property);
-				}
-			}
-		}
+		$strings = RapumaEncoder::encode($model);
+		$filePath = $this->filePath($id);
+		$string = implode("\n", $strings);
+		file_put_contents($filePath, $string);
 		return $id;
 	}
-	
+
+	/**
+	 * Removes the file $id (relative to the base path). 
+	 * @param string $id
+	 * @return boolean
+	 */
 	public function remove($id) {
 		CodeGuard::checkTypeAndThrow($id, 'string');
-		$result = $this->_collection->remove(
-			array('_id' => self::mongoID($id)),
-			array('safe' => true)
-		);
-		return $result['n'];
-	}
-	
-	public function removeSubDocument($rootId, $property, $id) {
-		CodeGuard::checkTypeAndThrow($rootId, 'string');
-		CodeGuard::checkTypeAndThrow($id, 'string');
-		$result = $this->_collection->update(
-				array('_id' => self::mongoId($rootId)),
-				array('$unset' => array($property . '.' . $id => '')),
-				array('multiple' => false, 'safe' => true)
-		);
-		// TODO Have a closer look at $result and throw if things go wrong CP 2013-07
-		return $result['ok'] ? $result['n'] : 0;
-	}
-	
-	/**
-	 * @param array $data
-	 * @param string $id
-	 * @param int $keyType
-	 * @param string $rootId
-	 * @param string $property
-	 * @return string
-	 */
-	protected function update($data, $id, $keyType, $rootId, $property) {
-		CodeGuard::checkTypeAndThrow($rootId, 'string');
-		CodeGuard::checkTypeAndThrow($id, 'string');
-		if ($keyType == self::ID_IN_KEY) {
-			if (empty($rootId)) {
-				$result = $this->_collection->update(
-					array('_id' => self::mongoId($id)),
-					array('$set' => $data),
-					array('upsert' => true, 'multiple' => false, 'safe' => true)
-				);
-				$id = isset($result['upserted']) ? $result['upserted'].$id : $id;
-			} else {
-				CodeGuard::checkNullAndThrow($id, 'id');
-				CodeGuard::checkNullAndThrow($property, 'property');
-				$subKey = $property . '.' . $id;
-				$result = $this->_collection->update(
-					array('_id' => self::mongoId($rootId)),
-					array('$set' => array($subKey => $data)),
-					array('upsert' => false, 'multiple' => false, 'safe' => true)
-				);
-			}
-		} else {
-			CodeGuard::checkNullAndThrow($id, 'id');
-			$result = $this->_collection->update(
-				array('_id' => self::mongoId($rootId)),
-				array('$set' => array($property . '$' . $id => $data)),
-				array('upsert' => false, 'multiple' => false, 'safe' => true)
-			);
+		$filePath = self::filePath($id);
+		if (file_exists($filePath)) {
+			unlink($filePath);
 		}
-		return $id;
+		return true;
 	}
-	
-	
 
 }
 

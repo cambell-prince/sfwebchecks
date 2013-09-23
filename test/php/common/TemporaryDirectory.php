@@ -10,6 +10,7 @@ class TemporaryDirectory
 	
 	public function __construct($path) {
 		$this->_path = $path;
+		$this->ensureTestPathExists();
 	}
 	
 	public function __destruct() {
@@ -29,20 +30,32 @@ class TemporaryDirectory
 				unlink($file->getRealPath());
 			}
 		}
-		rmdir($dir);		
+	}
+	
+	public function cleanFolder() {
+		$this->clean();
+		rmdir($dir);
 	}
 
 	protected function ensureTestPathExists() {
 		$testPath = $this->testPath();
 		if (!file_exists($testPath)) {
-			mkdir($testPath);
+			mkdir($testPath, 0755, true);
 		}
 	}
 	
 	protected function testPath() {
+		if (substr($this->_path, 0, 1) == '/') {
+			// We've got an absolute path so just return that.
+			return $this->_path;
+		}
 		$tempDirectory = sys_get_temp_dir();
 		var_dump($tempDirectory);
 		return $tempDirectory . '/' . $this->_path . '/';
+	}
+	
+	public function filePath($fileName) {
+		return $this->testPath() . $fileName;
 	}
 	
 }

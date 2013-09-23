@@ -1,4 +1,8 @@
 <?php
+use models\mapper\rapuma\RapumaMapper;
+
+use models\mapper\MapperModel;
+
 use models\mapper\ArrayOf;
 use models\mapper\Id;
 
@@ -39,14 +43,29 @@ class RapumaProjectInfo
 	public $languageCode;
 }
 
-class RapumaTestModel
+class RapumaTestModel extends MapperModel
 {
 
-	public function __construct() {
+	protected static function mapper() {
+		static $instance = null;
+		if (null === $instance) {
+			$instance = new RapumaMapper(RAPUMA_BASE_PATH);
+		}
+		return $instance;
+	}
+	
+	
+	public function __construct($id = '') {
+		$this->id = new Id();
 		$this->projectInfo = new RapumaProjectInfo();
 		$this->managers = new ArrayOf(ArrayOf::OBJECT, function($data) {
 			return self::createManager($data);
 		});
+		parent::__construct(self::mapper(), $id);
+	}
+	
+	public function setId($id) {
+		$this->id->id = $id;
 	}
 
 	public static function createManager($data) {
@@ -60,6 +79,8 @@ class RapumaTestModel
 		}
 	}
 
+	public $id;
+	
 	/**
 	 * @var DecoderProjectInfo
 	 */
@@ -75,7 +96,7 @@ class RapumaMapperTestEnvironment extends TemporaryDirectory
 {
 	
 	public function __construct() {
-		parent::__construct('rapuma_mapper_test');
+		parent::__construct(RAPUMA_BASE_PATH);
 	}
 	
 	
