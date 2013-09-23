@@ -159,6 +159,12 @@ class ProjectModel extends \models\mapper\MapperModel
 	 */
 	public $projectCode;
 	
+	/**
+	 * Flag to indicated if this project is featured on the website 
+	 * @var boolean
+	 */
+	public $featured;
+	
 }
 
 class ProjectListModel extends \models\mapper\MapperListModel
