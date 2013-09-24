@@ -3,7 +3,6 @@ namespace models\typeset;
 
 use libraries\palaso\CodeGuard;
 use models\mapper\Id;
-use models\mapper\MapperModel;
 use models\mapper\rapuma\RapumaMapper;
 
 /**
@@ -15,7 +14,7 @@ use models\mapper\rapuma\RapumaMapper;
  * 3) The 'id' of the model.  This is the remainder of the path relative to the project directory.
  *    e.g. config/project.conf
  */
-class TypesetModel extends MapperModel
+class TypesetModel
 {
 
 	protected static function mapper() {
@@ -32,13 +31,22 @@ class TypesetModel extends MapperModel
 	private $_projectModel;
 	
 	/**
+	 * @var RapumaMapper
+	 */
+	protected $_mapper;
+		
+	/**
 	 * @param ProjectModel $projectModel
 	 * @param string $id
 	 */
 	public function __construct($projectModel, $id = '') {
+		CodeGuard::checkTypeAndThrow($id, 'string');
 		$this->_projectModel = $projectModel;
 		$this->id = new Id();
-		parent::__construct(self::mapper(), $id);
+		$this->_mapper = self::mapper();
+		if (!empty($id)) {
+			$this->read($id);
+		}
 	}
 
 	public function setId($id) {
