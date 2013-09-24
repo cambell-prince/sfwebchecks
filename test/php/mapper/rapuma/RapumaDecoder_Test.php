@@ -108,8 +108,9 @@ EOT;
         freezeTexSettings = False
 
 EOT;
+		$projectModel = new RapumaMapperMockProject();
 		
-		$model = new RapumaTestModel();
+		$model = new RapumaTestModel($projectModel);
 		RapumaDecoder::decode($model, explode("\n", $values));
 // 		var_dump($model);
 		$this->assertEqual('0.6.r808', $model->projectInfo->projectCreatorVersion);

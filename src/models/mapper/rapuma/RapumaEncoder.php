@@ -56,6 +56,9 @@ class RapumaEncoder extends JsonEncoder {
 			iterator_apply($it2, array($this, 'outputItem'), array($it2, $depth + 1));
 			return true;
 		}
+		if ($depth == 0 && $key == 'id') {
+			return;
+		}
 		$lead = '';
 		for ($i = 0; $i < $depth; $i++) {
 			$lead .= "\t";

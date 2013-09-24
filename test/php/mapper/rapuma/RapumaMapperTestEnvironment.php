@@ -1,4 +1,6 @@
 <?php
+use models\typeset\TypesetModel;
+
 use models\mapper\rapuma\RapumaMapper;
 
 use models\mapper\MapperModel;
@@ -43,31 +45,17 @@ class RapumaProjectInfo
 	public $languageCode;
 }
 
-class RapumaTestModel extends MapperModel
+class RapumaTestModel extends TypesetModel
 {
 
-	protected static function mapper() {
-		static $instance = null;
-		if (null === $instance) {
-			$instance = new RapumaMapper(RAPUMA_BASE_PATH);
-		}
-		return $instance;
-	}
-	
-	
-	public function __construct($id = '') {
-		$this->id = new Id();
+	public function __construct($projectModel, $id = '') {
 		$this->projectInfo = new RapumaProjectInfo();
 		$this->managers = new ArrayOf(ArrayOf::OBJECT, function($data) {
 			return self::createManager($data);
 		});
-		parent::__construct(self::mapper(), $id);
+		parent::__construct($projectModel, $id);
 	}
 	
-	public function setId($id) {
-		$this->id->id = $id;
-	}
-
 	public static function createManager($data) {
 		switch ($data) {
 			case 'usfm_Text':
@@ -79,8 +67,6 @@ class RapumaTestModel extends MapperModel
 		}
 	}
 
-	public $id;
-	
 	/**
 	 * @var DecoderProjectInfo
 	 */
@@ -91,6 +77,15 @@ class RapumaTestModel extends MapperModel
 	 */
 	public $managers;
 }
+
+class RapumaMapperMockProject {
+	public $projectCode;
+
+	public function __construct($projectCode = "test_project") {
+		$this->projectCode = $projectCode;
+	}
+}
+
 
 class RapumaMapperTestEnvironment extends TemporaryDirectory
 {

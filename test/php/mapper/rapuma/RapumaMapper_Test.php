@@ -16,8 +16,10 @@ class TestRapumaMapper extends UnitTestCase {
 		$e = new RapumaMapperTestEnvironment();
 		$e->clean();
 		
+		$projectModel = new RapumaMapperMockProject();
+		
 		// Create
-		$model = new RapumaTestModel();
+		$model = new RapumaTestModel($projectModel);
 		$model->projectInfo->languageCode = 'th';
 		$model->projectInfo->projectCreatorVersion = '0.1.2';
 		$model->setId('project.conf');
@@ -29,7 +31,7 @@ class TestRapumaMapper extends UnitTestCase {
 		$this->assertEqual('project.conf', $model->id->asString());
 		
 		// Read back
-		$otherModel = new RapumaTestModel($id);
+		$otherModel = new RapumaTestModel($projectModel, $id);
 		$this->assertEqual($model->id, $otherModel->id);
 		$this->assertEqual($model->projectInfo, $otherModel->projectInfo);
 		
@@ -40,11 +42,12 @@ class TestRapumaMapper extends UnitTestCase {
 		$otherModel->write('project.conf');
 		
 		// Read back
-		$otherModel = new RapumaTestModel($id);
+		$otherModel = new RapumaTestModel($projectModel, $id);
 		$this->assertEqual('en', $otherModel->projectInfo->languageCode);
 		
 		// Delete
-		$this->assertTrue(false, 'delete nyi');
+		$result = $otherModel->remove($id);
+		$this->assertTrue($result, 'RapumaTestModel::remove failed');
 		
 		// Test not exist
 		$filePath = $e->filePath('project.conf');

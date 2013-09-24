@@ -24,7 +24,9 @@ class TestRapumaEncoder extends UnitTestCase {
 EOT;
 		$expected = explode("\n", $values);
 	
-		$model = new RapumaTestModel();
+		$projectModel = new RapumaMapperMockProject();
+		
+		$model = new RapumaTestModel($projectModel);
 		$model->projectInfo->projectCreatorVersion = '0.6.r808';
 		$model->projectInfo->languageCode = 'en';
 		
@@ -41,7 +43,7 @@ EOT;
 		$model->managers->append($manager);
 		
 		$result = RapumaEncoder::encode($model);
-//  		var_dump($result);
+//   		var_dump($result);
  		
  		for ($i = 0, $c = count($result); $i < $c; $i++) {
  			$this->assertEqual(trim($expected[$i]), trim($result[$i]));

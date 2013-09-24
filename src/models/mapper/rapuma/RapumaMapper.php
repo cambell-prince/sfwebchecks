@@ -91,6 +91,16 @@ class RapumaMapper
 		}
 		return true;
 	}
+	
+	/**
+	 * @param string $directory
+	 */
+	public function ensureDirectoryExists($directory) {
+		$path = $this->filePath($directory);
+		if (!file_exists($path)) {
+			mkdir($path, 0755, true);
+		}
+	}	
 
 }
 
