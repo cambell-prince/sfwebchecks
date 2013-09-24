@@ -42,17 +42,20 @@ class RapumaEncoder extends JsonEncoder {
 	}
 	
 	/**
-	 * @param \Iterator $it
+	 * 
 	 * @param int $depth
+	 * @param string $key
+	 * @param string | array $outValue
+	 * @param string | array $inValue
 	 */
 	public function outputItem($depth, $key, $outValue, $inValue) {
-		var_dump('---', $depth, $key, $outValue, $inValue);
+// 		var_dump('---', $depth, $key, $outValue, $inValue);
 		if (is_array($outValue) || is_array($inValue)) {
 			if (!empty($outValue) && key_exists('id', $outValue)) {
 				$key = $outValue['id'];
 				unset($outValue['id']);
 			} else {
-// 				$key{0} = strtoupper($key{0});
+ 				$key{0} = strtoupper($key{0});
 			}
 			$lead = '';
 			$start = '[';
@@ -63,8 +66,6 @@ class RapumaEncoder extends JsonEncoder {
 				$end .= ']';
 			}
 			$this->output[] = $lead . $start . $key . $end; 
-// 			$it2 = new \ArrayIterator($item);
-// 			iterator_apply($it2, array($this, 'outputItem'), array($it2, $depth + 1));
 			foreach ($inValue as $inKey1 => $inValue1) {
 				if (array_key_exists($inKey1, $outValue)) {
 					$this->outputItem($depth + 1, $inKey1, $outValue[$inKey1], $inValue1);

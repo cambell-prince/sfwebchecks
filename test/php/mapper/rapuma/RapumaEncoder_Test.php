@@ -60,33 +60,33 @@ class RapumaEncoderTestModel extends TypesetModel
 class TestRapumaEncoder extends UnitTestCase {
 
 	function testEncode_ok() {
-		$values = <<<EOT
+		$input = <<<EOT
 [ProjectInfo]
-    isbnNumber = ""
+    isbnNumber = 
     projectCreatorVersion = 0.6.r808
     languageCode = th
     projectName = The Book of James in English
     projectIDCode = ENG-LATN-JAS
     typesetters = ,
     translators = ,
-    projectTitle = ""
+    projectTitle = 
     projectMediaIDCode = book
-    finishDate = ""
+    finishDate = 
     creatorID = default_user
-    startDate = ""
+    startDate = 
     projectCreateDate = 2013-09-07 00:00:39
 [Groups]
     [[james]]
-        tocSectionTitle = ""
+        tocSectionTitle = 
         useGrpStyOverride = False
         useMacros = False
         cidList = jas,
-        compStyOverrideList = ""
+        compStyOverrideList = 
         startPageNumber = 1
         cType = usfm
         precedingGroup = None
         useGrpTexOverride = False
-        postprocessScripts = ""
+        postprocessScripts = 
         isLocked = True
         csid = mb
         useHyphenation = False
@@ -95,10 +95,49 @@ class TestRapumaEncoder extends UnitTestCase {
         useManualAdjustments = True
         useIllustrations = False
         usePreprocessScript = False
-        compTexOverrideList = ""
+        compTexOverrideList = 
         bindingOrder = 0
 EOT;
-		$expected = explode("\n", $values);
+		$output = <<<EOT
+[ProjectInfo]
+    isbnNumber = 
+    projectCreatorVersion = 0.6.r808
+    languageCode = en
+    projectName = The Book of James in English
+    projectIDCode = SOME-ID-CODE
+    typesetters = ,
+    translators = ,
+    projectTitle = 
+    projectMediaIDCode = book
+    finishDate = 
+    creatorID = default_user
+    startDate = 
+    projectCreateDate = 2013-09-07 00:00:39
+[Groups]
+    [[james]]
+        tocSectionTitle = 
+        useGrpStyOverride = False
+        useMacros = False
+        cidList = mat,jas
+        compStyOverrideList = 
+        startPageNumber = 1
+        cType = x
+        precedingGroup = None
+        useGrpTexOverride = False
+        postprocessScripts = 
+        isLocked = True
+        csid = mb
+        useHyphenation = False
+        tocInclude = False
+        totalPages = 12
+        useManualAdjustments = True
+        useIllustrations = False
+        usePreprocessScript = False
+        compTexOverrideList = 
+        bindingOrder = 0
+EOT;
+		$inputArray = explode("\n", $input);
+		$outputArray = explode("\n", $output);
 	
 		$projectModel = new RapumaMapperMockProject();
 		
@@ -116,11 +155,11 @@ EOT;
 // 		$group->freezeTexSettings = 'False';
 // 		$model->managers->append($group);
 		
-		$result = RapumaEncoder::encode($model, $expected);
-   		var_dump($result);
+		$result = RapumaEncoder::encode($model, $inputArray);
+//    		var_dump($result);
  		
  		for ($i = 0, $c = count($result); $i < $c; $i++) {
- 			$this->assertEqual(trim($expected[$i]), trim($result[$i]));
+ 			$this->assertEqual(trim($outputArray[$i]), trim($result[$i]));
  		}
 	
 	}
