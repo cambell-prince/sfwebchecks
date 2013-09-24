@@ -56,7 +56,7 @@ class RapumaDecoder extends JsonDecoder {
 			} else {
 				// Its a property so add to the current container.
 				$matches = array();
-				preg_match('/(\w+)\s*=\s*(.+)/', $string, $matches);
+				preg_match('/(\w+)\s*=\s*(.*)/', $string, $matches);
 				if (count($matches) != 3) {
 					throw new \Exception("Broken property '$string'");
 				}
