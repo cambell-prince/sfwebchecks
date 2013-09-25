@@ -24,25 +24,10 @@ angular.module(
 				]
 		);
 
-		// Listview Selection
-		$scope.newGroupCollapsed = true;
-		$scope.selected = [];
-		$scope.updateSelection = function(event, item) {
-			var selectedIndex = $scope.selected.indexOf(item);
-			var checkbox = event.target;
-			if (checkbox.checked && selectedIndex == -1) {
-				$scope.selected.push(item);
-			} else if (!checkbox.checked && selectedIndex != -1) {
-				$scope.selected.splice(selectedIndex, 1);
-			}
-		};
-		$scope.isSelected = function(item) {
-			return item != null && $scope.selected.indexOf(item) >= 0;
-		};
-		// Listview Data
+		// DTO Data
 		$scope.groups = [];
-		$scope.queryGroups = function() {
-			console.log("queryGroups()");
+		var getDto = function() {
+			console.log("getDto()");
 			groupService.list(projectId, function(result) {
 				if (result.ok) {
 					$scope.groups = result.data.entries;
@@ -60,73 +45,8 @@ angular.module(
 				}
 			});
 		};
+		getDto();
 		
-		$scope.groupUrl = function(group) {
-			return '/app/sftypeset#/project/' + projectId + '/' + group.type + '/' + group.id;
-		}; 
-		
-		// Remove
-		$scope.removeGroups = function() {
-			console.log("removeGroups()");
-			var groupIds = [];
-			for(var i = 0, l = $scope.selected.length; i < l; i++) {
-				groupIds.push($scope.selected[i].id);
-			}
-			if (l == 0) {
-				// TODO ERROR
-				return;
-			}
-			groupService.remove(projectId, groupIds, function(result) {
-				if (result.ok) {
-					$scope.selected = []; // Reset the selection
-					$scope.queryGroups();
-					// TODO
-				}
-			});
-		};
-		// Add
-		$scope.newGroup = {};
-		$scope.groupTypes = [
-             {key: 'book',  label: 'Book'},
-             {key: 'cover', label: 'Cover'},
-             {key: 'map',   label: 'Map'},
-        ];
-		$scope.newGroup.type = 'book';
-		$scope.addGroup = function() {
-			console.log("addGroup()");
-			$scope.newGroupCollapsed = true;
-			$scope.newGroup.id = '';
-			groupService.update(projectId, $scope.newGroup, function(result) {
-				if (result.ok) {
-					$scope.queryGroups();
-				}
-			});
-		};
-
-		// Fake data to make the page look good while it's being designed. To be
-		// replaced by real data once the appropriate API functions are writen.
-		var fakeData = {
-			questionCount: -7,
-			viewsCount: -34,
-			unreadAnswers: -3,
-			unreadComments: -8
-		};
-
-		$scope.getQuestionCount = function(group) {
-			return group.questionCount;
-		};
-
-		$scope.getViewsCount = function(group) {
-			return fakeData.viewsCount;
-		};
-
-		$scope.getUnreadAnswers = function(group) {
-			return fakeData.unreadAnswers;
-		};
-
-		$scope.getUnreadComments = function(group) {
-			return fakeData.unreadComments;
-		};
 		
 	}])
 	.controller('ProjectSettingsCtrl', ['$scope', '$location', '$routeParams', 'breadcrumbService', 'userService', 'projectService', 'sessionService',

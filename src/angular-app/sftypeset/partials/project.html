@@ -1,39 +1,26 @@
-<h2 style="font-weight:normal">Groups in {{project.name}}</h2>
-<form ng-show="rights.showControlBar" class="control-bar form-inline">
-	<button ng-show="rights.deleteOther" class="btn" ng-click="removeGroups()"><i class="icon-remove"></i>Remove Groups</button>
-	<button ng-show="rights.create" class="btn" ng-click="newGroupCollapsed = !newGroupCollapsed"><i class="icon-plus"></i>Add New Group</button>
-	<a ng-show="rights.editOther" class="btn" href="{{project.settingsUrl}}"><i class="icon-gear"></i>Project Settings</a>
+<form ng-show="rights.showControlBar" class="control-bar form-inline right">
+	<button ng-show="true" class="btn" ng-click=""><i class="icon-refresh"></i>Run</button>
+	<a ng-show="rights.editOther" class="btn" href="{{project.settingsUrl}}"><i class="icon-cog"></i>Project Settings</a>
 </form>
-<div class="new-item" collapse="newGroupCollapsed">
-	<form class="well">
-	<fieldset>
-	<label>Name</label>
-	<input ng-model="newGroup.name" class="span4" type="text" placeholder="Name"/>
-	<label>Type</label>
-	<select ng-model="newGroup.type" class="span4" ng-options="value.key as value.label for value in groupTypes"></select>
-	<label></label>
-	<button type="submit" class="btn" ng-click="addGroup()"><i class="icon-pencil"></i>Add Group to Project</button>
-	</fieldset>
-	</form>
-</div>
+<h2 style="font-weight:normal">Project {{project.name}}</h2>
+<form ng-show="rights.showControlBar" class="control-bar form-inline">
+	<button ng-show="true" class="btn" ng-click=""><i class="icon-search"></i>View Side By Side</button>
+</form>
+<table>
+<tbody>
+<tr>
+<td><input type="checkbox"/></td><td>#0.1.5</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+</tr>
+<tr>
+<td><input type="checkbox"/></td><td>#0.1.4</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+</tr>
+<tr>
+<td><input type="checkbox"/></td><td>#0.1.3</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<div listview hide-if-empty="true" search="queryGroups()" items="groups" visible-items="visibleGroups" select="">
-	<table class="table" style="width: 100%">
-	<thead>
-	<tr>
-		<th width="16px" align="center"></th>
-		<th>Type</th>
-		<th>Group</th>
-	</tr>
-	</thead>
-	<tbody>
-	<tr ng-repeat="group in visibleGroups" class="details-row" ng-class="{active: isSelected(group)}">
-		<td width="16px" align="center"><div ng-show="rights.deleteOther"><input type="checkbox" ng-checked="isSelected(group)" ng-click="updateSelection($event, group)" /></div></td>
-		<td>{{group.type}}</td>
-		<td><a href="{{groupUrl(group)}}"><span class="larger-text">{{group.name}}</span></a></td>
-	</tr>
-	</tbody>
-	</table>
-</div>
+<h2 style="font-weight:normal">Groups</h2>
 <hr />
-</div>
+<h2 style="font-weight:normal">Tasks</h2>
+<hr />
