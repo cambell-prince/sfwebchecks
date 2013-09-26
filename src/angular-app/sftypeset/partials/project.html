@@ -1,26 +1,39 @@
 <form ng-show="rights.showControlBar" class="control-bar form-inline right">
-	<button ng-show="true" class="btn" ng-click=""><i class="icon-refresh"></i>Run</button>
 	<a ng-show="rights.editOther" class="btn" href="{{project.settingsUrl}}"><i class="icon-cog"></i>Project Settings</a>
 </form>
 <h2 style="font-weight:normal">Project {{project.name}}</h2>
+<tabset>
+<tab heading="Overview">
 <form ng-show="rights.showControlBar" class="control-bar form-inline">
 	<button ng-show="true" class="btn" ng-click=""><i class="icon-search"></i>View Side By Side</button>
+	<button ng-show="true" class="btn" ng-click="runProject()"><i class="icon-refresh"></i>Run</button>
 </form>
 <table>
 <tbody>
 <tr>
-<td><input type="checkbox"/></td><td>#0.1.5</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+<td><input type="checkbox"/></td><td>#0.1.5</td><td><i class="icon-ok-sign"></i></td><td>Draft</td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td>
 </tr>
 <tr>
-<td><input type="checkbox"/></td><td>#0.1.4</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+<td><input type="checkbox"/></td><td>#0.1.4</td><td><i class="icon-ok-sign"></i></td><td>Draft</td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td>
 </tr>
 <tr>
-<td><input type="checkbox"/></td><td>#0.1.3</td><td><i class="icon-ok-sign"></i></td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td><td>Notes</td><td>Discussion</td>
+<td><input type="checkbox"/></td><td>#0.1.3</td><td><i class="icon-ok-sign"></i></td><td>Draft</td><td>4 artifacts<i class="icon-chevron-down"></i></td><td>Download All</td>
 </tr>
 </tbody>
 </table>
+<p>Showing up to 5 most recent runs.  Show <a href="">all runs</a>.</p>
 <hr />
 <h2 style="font-weight:normal">Groups</h2>
 <hr />
 <h2 style="font-weight:normal">Tasks</h2>
 <hr />
+</tab>
+<tab heading="Artifacts">
+</tab>
+<tab heading="Runs">
+</tab>
+<tab heading="Activity">
+</tab>
+<tab heading="Discussion">
+</tab>
+</tabset>

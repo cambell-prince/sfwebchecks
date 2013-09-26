@@ -5,18 +5,15 @@ use libraries\palaso\JsonRpcServer;
 use models\UserModel;
 use models\ProjectModel;
 use models\dto\ProjectSettingsDto;
-use models\commands\GroupCommands;
 use models\commands\UserCommands;
 use models\mapper\Id;
 use models\mapper\JsonEncoder;
 use models\mapper\JsonDecoder;
-use models\typeset\GroupModel;
 
 require_once(APPPATH . 'config/sf_config.php');
 
 require_once(APPPATH . 'models/ProjectModel.php');
 require_once(APPPATH . 'models/UserModel.php');
-require_once(APPPATH . 'models/typeset/GroupModel.php');
 
 class Typeset
 {
@@ -36,48 +33,28 @@ class Typeset
 	}
 	
 	//---------------------------------------------------------------
-	// COMPONENT API
+	// DASHBOARD API
 	//---------------------------------------------------------------
 	
-	public function group_update($projectId, $object) {
-		$projectModel = new \models\ProjectModel($projectId);
-		$isNewComponent = ($object['id'] == '');
-		if ($isNewComponent) {
-			$groupModel = GroupModel::create($projectModel, $object);
-		} else {
-			$groupModel = GroupModel::readd($projectModel, $object['id']);
-		}
-		JsonDecoder::decode($groupModel, $object);
-		$groupId = $groupModel->write();
-// 		if ($isNewComponent) {
-// 			ActivityCommands::addComponent($projectModel, $groupId, $groupModel);
-// 		}
-		return $groupId;
+	public function dash_read($projectId) {
+		return \models\typeset\dto\DashDto::encode($projectId, $this->_userId);
 	}
 	
-	public function group_read($projectId, $groupId) {
-		$projectModel = new \models\ProjectModel($projectId);
-		$groupModel = ComponentModel::readd($projectModel, $groupId);
-		return JsonEncoder::encode($groupModel);
+	//---------------------------------------------------------------
+	// RUN API
+	//---------------------------------------------------------------
+	
+	public function run($projectId, $type, $id) {
+		return \models\typeset\commands\RunCommand::run($projectId, $type, $id, $this->_userId);
 	}
 	
-	public function group_delete($projectId, $groupIds) {
-		return ComponentCommands::deleteComponents($projectId, $groupIds);
+	public function run_poll($projectId, $runId) {
+		return \models\typeset\commands\RunCommand::poll($projectId, $runId);
 	}
-	/*
-	public function group_list($projectId) {
-		$projectModel = new \models\ProjectModel($projectId);
-		$groupListModel = new \models\ComponentListModel($projectModel);
-		$groupListModel->read();
-		return $groupListModel;
-	}
-	*/
-	public function group_list($projectId) {
-		return \models\typeset\GroupListDto::encode($projectId, $this->_userId);
-	}
-
-	public function group_settings_dto($projectId, $groupId) {
-		return \models\dto\GroupSettingsDto::encode($projectId, $groupId, $this->_userId);
+	
+	public function project_settings_read($projectId, $groupId) {
+		throw new \Exception("NYI");
+// 		return \models\dto\GroupSettingsDto::encode($projectId, $groupId, $this->_userId);
 	}
 	
 }

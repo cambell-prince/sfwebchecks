@@ -4,8 +4,8 @@ angular.module(
 		'sftypeset.project',
 		[ 'sf.services', 'palaso.ui.listview', 'palaso.ui.typeahead', 'ui.bootstrap', 'sgw.ui.breadcrumb' ]
 	)
-	.controller('ProjectCtrl', ['$scope', 'groupService', '$routeParams', 'sessionService', 'breadcrumbService',
-	                            function($scope, groupService, $routeParams, ss, breadcrumbService) {
+	.controller('ProjectCtrl', ['$scope', 'dashService', '$routeParams', 'sessionService', 'breadcrumbService',
+	                            function($scope, dashService, $routeParams, ss, breadcrumbService) {
 		var projectId = $routeParams.projectId;
 		$scope.projectId = projectId;
 		
@@ -26,9 +26,9 @@ angular.module(
 
 		// DTO Data
 		$scope.groups = [];
-		var getDto = function() {
-			console.log("getDto()");
-			groupService.list(projectId, function(result) {
+		var dashRead = function() {
+			console.log("dashRead()");
+			dashService.read(projectId, function(result) {
 				if (result.ok) {
 					$scope.groups = result.data.entries;
 					$scope.groupsCount = result.data.count;
@@ -38,6 +38,7 @@ angular.module(
 					breadcrumbService.updateCrumb('top', 1, {label: $scope.project.name});
 
 					var rights = result.data.rights;
+					// TODO FIx the rights
 					$scope.rights.deleteOther = ss.hasRight(rights, ss.domain.TEXTS, ss.operation.DELETE_OTHER); 
 					$scope.rights.create = ss.hasRight(rights, ss.domain.TEXTS, ss.operation.CREATE); 
 					$scope.rights.editOther = ss.hasRight(ss.realm.SITE(), ss.domain.PROJECTS, ss.operation.EDIT_OTHER);
@@ -45,7 +46,30 @@ angular.module(
 				}
 			});
 		};
-		getDto();
+		dashRead();
+		
+		// RUN
+		var runPoll = function() {
+			console.log("runPoll()");
+			
+		};
+		
+		$scope.runProject = function() {
+			console.log("runProject()");
+			
+		};
+		
+		$scope.runGroup = function(groupId) {
+			
+		};
+		
+		// TASKS
+		
+		
+		
+		$scope.runs = {};
+		$scope.runs.project = {};
+//		$scope.
 		
 		
 	}])
@@ -93,6 +117,7 @@ angular.module(
 			return item != null && $scope.selected.indexOf(item) >= 0;
 		};
 		
+		// TODO Change this to use the project_settings_dto
 		$scope.users = [];
 		$scope.queryProjectUsers = function() {
 			projectService.listUsers($scope.project.id, function(result) {
